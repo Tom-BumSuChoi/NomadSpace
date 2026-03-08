@@ -3,74 +3,76 @@ import ProjectDescription
 public enum Module {
     public static func makeTargets(
         name: String,
+        layer: String,
         destinations: Destinations = .iOS,
         dependencies: [TargetDependency] = [],
         interfaceDependencies: [TargetDependency] = [],
-        hasResources: Bool = false
+        hasResources: Bool = false,
+        hasExample: Bool = true
     ) -> [Target] {
-        let interface = Target.target(
+        let basePath = "\(layer)/\(name)"
+        let bundlePrefix = "io.nomadspace"
+
+        var targets: [Target] = []
+
+        targets.append(.target(
             name: "\(name)Interface",
             destinations: destinations,
             product: .framework,
-            bundleId: "io.tuist.\(name)Interface",
-            sources: ["Features/\(name)/Interface/**"],
+            bundleId: "\(bundlePrefix).\(name)Interface",
+            sources: ["\(basePath)/Interface/**"],
             dependencies: interfaceDependencies
-        )
+        ))
 
-        let resources: ResourceFileElements? = hasResources
-            ? ["Features/\(name)/Resources/**"]
-            : nil
-
-        let source = Target.target(
+        targets.append(.target(
             name: name,
             destinations: destinations,
             product: .framework,
-            bundleId: "io.tuist.\(name)",
-            sources: ["Features/\(name)/Sources/**"],
-            resources: resources,
+            bundleId: "\(bundlePrefix).\(name)",
+            sources: ["\(basePath)/Sources/**"],
+            resources: hasResources ? ["\(basePath)/Resources/**"] : nil,
             dependencies: [.target(name: "\(name)Interface")] + dependencies
-        )
+        ))
 
-        let testing = Target.target(
+        targets.append(.target(
             name: "\(name)Testing",
             destinations: destinations,
             product: .framework,
-            bundleId: "io.tuist.\(name)Testing",
-            sources: ["Features/\(name)/Testing/**"],
+            bundleId: "\(bundlePrefix).\(name)Testing",
+            sources: ["\(basePath)/Testing/**"],
             dependencies: [.target(name: "\(name)Interface")]
-        )
+        ))
 
-        let tests = Target.target(
+        targets.append(.target(
             name: "\(name)Tests",
             destinations: destinations,
             product: .unitTests,
-            bundleId: "io.tuist.\(name)Tests",
+            bundleId: "\(bundlePrefix).\(name)Tests",
             infoPlist: .default,
-            sources: ["Features/\(name)/Tests/**"],
+            sources: ["\(basePath)/Tests/**"],
             dependencies: [
                 .target(name: name),
                 .target(name: "\(name)Testing"),
             ]
-        )
+        ))
 
-        let example = Target.target(
-            name: "\(name)Example",
-            destinations: destinations,
-            product: .app,
-            bundleId: "io.tuist.\(name)Example",
-            infoPlist: .extendingDefault(with: [
-                "UILaunchScreen": [
-                    "UIColorName": "",
-                    "UIImageName": "",
-                ],
-            ]),
-            sources: ["Features/\(name)/Example/Sources/**"],
-            dependencies: [
-                .target(name: name),
-                .target(name: "\(name)Testing"),
-            ]
-        )
+        if hasExample {
+            targets.append(.target(
+                name: "\(name)Example",
+                destinations: destinations,
+                product: .app,
+                bundleId: "\(bundlePrefix).\(name)Example",
+                infoPlist: .extendingDefault(with: [
+                    "UILaunchScreen": ["UIColorName": "", "UIImageName": ""],
+                ]),
+                sources: ["\(basePath)/Example/Sources/**"],
+                dependencies: [
+                    .target(name: name),
+                    .target(name: "\(name)Testing"),
+                ]
+            ))
+        }
 
-        return [interface, source, testing, tests, example]
+        return targets
     }
 }
