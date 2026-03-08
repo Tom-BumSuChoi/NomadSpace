@@ -1,17 +1,18 @@
 import SwiftUI
+import HomeInterface
 
-public struct ContentView: View {
+public struct HomeView: View {
     public init() {}
 
     public var body: some View {
         Text("Hello, World!")
+            .font(.largeTitle)
             .padding()
     }
 }
 
-
-struct ContentView_Previews: PreviewProvider {
+struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        HomeView()
     }
 }

@@ -1,10 +1,11 @@
 import SwiftUI
+import Home
 
 @main
-struct HelloTuistApp: App {
+struct HomeExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
         }
     }
 }

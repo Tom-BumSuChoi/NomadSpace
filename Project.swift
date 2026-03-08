@@ -1,11 +1,12 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "HelloTuist",
-    targets: [
-        appTarget,
-        testTarget,
-    ]
+    targets: [appTarget] + Module.makeTargets(
+        name: "Home",
+        dependencies: [.external(name: "Alamofire")]
+    )
 )
 
 let appTarget = Target.target(
@@ -13,19 +14,15 @@ let appTarget = Target.target(
     destinations: .iOS,
     product: .app,
     bundleId: "io.tuist.HelloTuist",
-    infoPlist: .extendingDefault(with: ["UILaunchScreen": ["UIColorName": "","UIImageName": "",],]),
-    sources: ["HelloTuist/Sources/**"],
-    resources: ["HelloTuist/Resources/**"],
-    dependencies: [.external(name: "Alamofire")]
-)
-
-let testTarget = Target.target(
-    name: "HelloTuistTests",
-    destinations: .iOS,
-    product: .unitTests,
-    bundleId: "io.tuist.HelloTuistTests",
-    infoPlist: .default,
-    sources: ["HelloTuist/Tests/**"],
-    resources: [],
-    dependencies: [.target(name: "HelloTuist")]
+    infoPlist: .extendingDefault(with: [
+        "UILaunchScreen": [
+            "UIColorName": "",
+            "UIImageName": "",
+        ],
+    ]),
+    sources: ["App/Sources/**"],
+    resources: ["App/Resources/**"],
+    dependencies: [
+        .target(name: "Home"),
+    ]
 )
