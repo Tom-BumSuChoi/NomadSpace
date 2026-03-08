@@ -11,13 +11,17 @@ public struct FeedView: View {
 
     public var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(viewModel.posts) { post in
-                        PostCard(post: post)
-                    }
+            Group {
+                if viewModel.isLoading && viewModel.posts.isEmpty {
+                    ProgressView("피드를 불러오는 중...")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let error = viewModel.errorMessage, viewModel.posts.isEmpty {
+                    errorView(error)
+                } else if viewModel.posts.isEmpty {
+                    emptyView
+                } else {
+                    feedList
                 }
-                .padding()
             }
             .background(NomadColors.surface)
             .navigationTitle("커뮤니티")
@@ -29,12 +33,70 @@ public struct FeedView: View {
                     }
                 }
             }
+            .sheet(isPresented: $viewModel.showCreatePost) {
+                CreatePostView(onPost: { content, category, city, country in
+                    viewModel.createPost(content: content, category: category, city: city, country: country)
+                })
+            }
+            .task { await viewModel.loadFeed() }
         }
+    }
+
+    private var feedList: some View {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                ForEach(viewModel.posts) { post in
+                    NavigationLink(value: post) {
+                        PostCard(post: post, onLike: { viewModel.toggleLike(postId: post.id) })
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding()
+        }
+        .refreshable { await viewModel.loadFeed() }
+        .navigationDestination(for: Post.self) { post in
+            PostDetailView(post: post)
+        }
+    }
+
+    private func errorView(_ message: String) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 40))
+                .foregroundColor(NomadColors.error)
+            Text(message)
+                .font(NomadFonts.body)
+                .foregroundColor(NomadColors.onSurfaceSecondary)
+                .multilineTextAlignment(.center)
+            NomadButton("다시 시도", style: .outline) {
+                Task { await viewModel.loadFeed() }
+            }
+            .frame(width: 160)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var emptyView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "person.3")
+                .font(.system(size: 40))
+                .foregroundColor(NomadColors.onSurfaceSecondary)
+            Text("아직 게시글이 없습니다")
+                .font(NomadFonts.body)
+                .foregroundColor(NomadColors.onSurfaceSecondary)
+            Text("첫 번째 게시글을 작성해 보세요!")
+                .font(NomadFonts.caption)
+                .foregroundColor(NomadColors.onSurfaceSecondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
 struct PostCard: View {
     let post: Post
+    let onLike: () -> Void
 
     var body: some View {
         NomadCard {
@@ -67,10 +129,12 @@ struct PostCard: View {
                 Text(post.content)
                     .font(NomadFonts.body)
                     .foregroundColor(NomadColors.onSurface)
-                    .lineLimit(3)
+                    .lineLimit(4)
 
                 HStack(spacing: 16) {
-                    Label("\(post.likeCount)", systemImage: "heart")
+                    Button(action: onLike) {
+                        Label("\(post.likeCount)", systemImage: "heart")
+                    }
                     Label("\(post.commentCount)", systemImage: "bubble.right")
                     Spacer()
                 }

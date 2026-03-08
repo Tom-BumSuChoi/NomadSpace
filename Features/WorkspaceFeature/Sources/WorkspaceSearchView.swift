@@ -13,13 +13,9 @@ public struct WorkspaceSearchView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    searchBar
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .padding(.top, 40)
-                    } else {
-                        resultsList
-                    }
+                    searchSection
+                    statusSection
+                    resultsList
                 }
                 .padding()
             }
@@ -28,15 +24,55 @@ public struct WorkspaceSearchView: View {
         }
     }
 
-    private var searchBar: some View {
-        NomadTextField("도시 검색", text: $viewModel.city, icon: "magnifyingglass")
+    private var searchSection: some View {
+        HStack(spacing: 8) {
+            NomadTextField("도시 검색 (예: Bangkok)", text: $viewModel.city, icon: "magnifyingglass")
+            NomadButton("검색") {
+                viewModel.search()
+            }
+            .frame(width: 80)
+        }
+    }
+
+    @ViewBuilder
+    private var statusSection: some View {
+        if viewModel.isLoading {
+            ProgressView("코워킹 스페이스를 검색 중...")
+                .padding(.top, 32)
+        } else if let error = viewModel.errorMessage {
+            NomadCard {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(NomadColors.error)
+                    Text(error)
+                        .font(NomadFonts.body)
+                        .foregroundColor(NomadColors.error)
+                }
+            }
+        } else if viewModel.hasSearched && viewModel.spaces.isEmpty {
+            VStack(spacing: 8) {
+                Image(systemName: "desktopcomputer")
+                    .font(.system(size: 40))
+                    .foregroundColor(NomadColors.onSurfaceSecondary)
+                Text("검색 결과가 없습니다")
+                    .font(NomadFonts.body)
+                    .foregroundColor(NomadColors.onSurfaceSecondary)
+            }
+            .padding(.top, 32)
+        }
     }
 
     private var resultsList: some View {
         LazyVStack(spacing: 12) {
             ForEach(viewModel.spaces) { space in
-                WorkspaceCard(space: space)
+                NavigationLink(value: space) {
+                    WorkspaceCard(space: space)
+                }
+                .buttonStyle(.plain)
             }
+        }
+        .navigationDestination(for: CoworkingSpace.self) { space in
+            WorkspaceDetailView(space: space, onBookDayPass: { viewModel.bookDayPass(space) })
         }
     }
 }
@@ -65,6 +101,9 @@ struct WorkspaceCard: View {
                     Label("\(space.wifiSpeed) Mbps", systemImage: "wifi")
                         .font(NomadFonts.small)
                         .foregroundColor(NomadColors.success)
+                    Text(space.openingHours)
+                        .font(NomadFonts.small)
+                        .foregroundColor(NomadColors.onSurfaceSecondary)
                     Spacer()
                     Text("\(space.currency) \(space.dailyPrice)/일")
                         .font(NomadFonts.headline)

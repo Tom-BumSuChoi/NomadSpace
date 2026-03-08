@@ -30,6 +30,9 @@ let appTargets: [Target] = [
             .target(name: "CommunityFeature"),
             .target(name: "WorkspaceFeature"),
             .target(name: "DesignSystem"),
+            .target(name: "TravelDomainInterface"),
+            .target(name: "PaymentDomainInterface"),
+            .target(name: "NetworkCoreInterface"),
         ]
     ),
 ]
@@ -130,7 +133,6 @@ let featureTargets: [Target] =
         name: "CommunityFeature",
         layer: "Features",
         dependencies: [
-            .target(name: "AuthDomainInterface"),
             .target(name: "NetworkCoreInterface"),
             .target(name: "DesignSystem"),
         ]
@@ -139,7 +141,6 @@ let featureTargets: [Target] =
         name: "WorkspaceFeature",
         layer: "Features",
         dependencies: [
-            .target(name: "TravelDomainInterface"),
             .target(name: "NetworkCoreInterface"),
             .target(name: "DesignSystem"),
         ]

@@ -14,12 +14,8 @@ public struct FlightSearchView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     searchSection
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .padding(.top, 40)
-                    } else {
-                        resultsList
-                    }
+                    statusSection
+                    resultsList
                 }
                 .padding()
             }
@@ -31,20 +27,61 @@ public struct FlightSearchView: View {
     private var searchSection: some View {
         NomadCard {
             VStack(spacing: 16) {
-                NomadTextField("출발지", text: $viewModel.origin, icon: "airplane.departure")
-                NomadTextField("도착지", text: $viewModel.destination, icon: "airplane.arrival")
+                NomadTextField("출발지 (예: ICN)", text: $viewModel.origin, icon: "airplane.departure")
+                NomadTextField("도착지 (예: BKK)", text: $viewModel.destination, icon: "airplane.arrival")
                 DatePicker("출발일", selection: $viewModel.departureDate, displayedComponents: .date)
                     .font(NomadFonts.body)
-                NomadButton("검색", action: viewModel.search)
+                Picker("좌석 등급", selection: $viewModel.cabinClass) {
+                    ForEach(CabinClass.allCases, id: \.self) { cabin in
+                        Text(cabin.rawValue.capitalized).tag(cabin)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .font(NomadFonts.caption)
+                NomadButton("항공권 검색", action: viewModel.search)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var statusSection: some View {
+        if viewModel.isLoading {
+            ProgressView("항공편을 검색 중입니다...")
+                .padding(.top, 32)
+        } else if let error = viewModel.errorMessage {
+            NomadCard {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(NomadColors.error)
+                    Text(error)
+                        .font(NomadFonts.body)
+                        .foregroundColor(NomadColors.error)
+                }
+            }
+        } else if viewModel.hasSearched && viewModel.flights.isEmpty {
+            VStack(spacing: 8) {
+                Image(systemName: "airplane.circle")
+                    .font(.system(size: 40))
+                    .foregroundColor(NomadColors.onSurfaceSecondary)
+                Text("검색 결과가 없습니다")
+                    .font(NomadFonts.body)
+                    .foregroundColor(NomadColors.onSurfaceSecondary)
+            }
+            .padding(.top, 32)
         }
     }
 
     private var resultsList: some View {
         LazyVStack(spacing: 12) {
             ForEach(viewModel.flights) { flight in
-                FlightResultCard(flight: flight)
+                NavigationLink(value: flight) {
+                    FlightResultCard(flight: flight)
+                }
+                .buttonStyle(.plain)
             }
+        }
+        .navigationDestination(for: Flight.self) { flight in
+            FlightDetailView(flight: flight, onBook: { viewModel.bookFlight(flight) })
         }
     }
 }
@@ -64,7 +101,6 @@ struct FlightResultCard: View {
                         .font(NomadFonts.caption)
                         .foregroundColor(NomadColors.onSurfaceSecondary)
                 }
-
                 HStack {
                     Text(flight.departure.code)
                         .font(NomadFonts.title)
@@ -73,9 +109,23 @@ struct FlightResultCard: View {
                     Text(flight.arrival.code)
                         .font(NomadFonts.title)
                     Spacer()
-                    Text("\(flight.currency) \(flight.price)")
-                        .font(NomadFonts.headline)
-                        .foregroundColor(NomadColors.accent)
+                    VStack(alignment: .trailing) {
+                        Text("\(flight.price)")
+                            .font(NomadFonts.headline)
+                            .foregroundColor(NomadColors.accent)
+                        Text(flight.currency)
+                            .font(NomadFonts.small)
+                            .foregroundColor(NomadColors.onSurfaceSecondary)
+                    }
+                }
+                HStack {
+                    Text(flight.cabinClass.rawValue.capitalized)
+                        .font(NomadFonts.small)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(NomadColors.accent.opacity(0.1))
+                        .cornerRadius(6)
+                    Spacer()
                 }
             }
         }

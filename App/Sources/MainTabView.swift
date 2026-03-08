@@ -1,8 +1,22 @@
 import SwiftUI
 import DesignSystem
+import FlightFeature
+import StayFeature
+import WalletFeature
+import CommunityFeature
+import WorkspaceFeature
+import TravelDomainInterface
+import PaymentDomainInterface
+import NetworkCoreInterface
 
 struct MainTabView: View {
     @State private var selectedTab: Tab = .flights
+
+    private let dependencies: AppDependencies
+
+    init(dependencies: AppDependencies) {
+        self.dependencies = dependencies
+    }
 
     enum Tab: String, CaseIterable {
         case flights = "항공"
@@ -24,58 +38,47 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            ForEach(Tab.allCases, id: \.self) { tab in
-                tabContent(for: tab)
-                    .tabItem {
-                        Label(tab.rawValue, systemImage: tab.icon)
-                    }
-                    .tag(tab)
-            }
+            FlightSearchView(
+                viewModel: FlightSearchViewModel(
+                    flightSearchUseCase: dependencies.flightSearchUseCase
+                )
+            )
+            .tabItem { Label(Tab.flights.rawValue, systemImage: Tab.flights.icon) }
+            .tag(Tab.flights)
+
+            StaySearchView(
+                viewModel: StaySearchViewModel(
+                    staySearchUseCase: dependencies.staySearchUseCase
+                )
+            )
+            .tabItem { Label(Tab.stays.rawValue, systemImage: Tab.stays.icon) }
+            .tag(Tab.stays)
+
+            FeedView(
+                viewModel: FeedViewModel(
+                    networkClient: dependencies.networkClient
+                )
+            )
+            .tabItem { Label(Tab.community.rawValue, systemImage: Tab.community.icon) }
+            .tag(Tab.community)
+
+            WorkspaceSearchView(
+                viewModel: WorkspaceSearchViewModel(
+                    networkClient: dependencies.networkClient
+                )
+            )
+            .tabItem { Label(Tab.workspace.rawValue, systemImage: Tab.workspace.icon) }
+            .tag(Tab.workspace)
+
+            WalletView(
+                viewModel: WalletViewModel(
+                    exchangeRateUseCase: dependencies.exchangeRateUseCase,
+                    splitBillUseCase: dependencies.splitBillUseCase
+                )
+            )
+            .tabItem { Label(Tab.wallet.rawValue, systemImage: Tab.wallet.icon) }
+            .tag(Tab.wallet)
         }
         .tint(NomadColors.accent)
-    }
-
-    @ViewBuilder
-    private func tabContent(for tab: Tab) -> some View {
-        switch tab {
-        case .flights:
-            PlaceholderView(title: "항공권 검색", icon: "airplane.departure", description: "전 세계 항공권을 검색하고 예약하세요")
-        case .stays:
-            PlaceholderView(title: "숙소 검색", icon: "bed.double", description: "호텔, 에어비앤비 등 숙소를 찾아보세요")
-        case .community:
-            PlaceholderView(title: "커뮤니티", icon: "person.3.fill", description: "현지 맛집 공유, 동행 구하기")
-        case .workspace:
-            PlaceholderView(title: "코워킹 스페이스", icon: "desktopcomputer", description: "전 세계 코워킹 스페이스를 검색하세요")
-        case .wallet:
-            PlaceholderView(title: "여행 지갑", icon: "creditcard.fill", description: "환율 계산, 경비 정산")
-        }
-    }
-}
-
-struct PlaceholderView: View {
-    let title: String
-    let icon: String
-    let description: String
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Spacer()
-                Image(systemName: icon)
-                    .font(.system(size: 60))
-                    .foregroundColor(NomadColors.accent)
-                Text(title)
-                    .font(NomadFonts.title)
-                    .foregroundColor(NomadColors.onSurface)
-                Text(description)
-                    .font(NomadFonts.body)
-                    .foregroundColor(NomadColors.onSurfaceSecondary)
-                    .multilineTextAlignment(.center)
-                Spacer()
-            }
-            .frame(maxWidth: .infinity)
-            .background(NomadColors.surface)
-            .navigationTitle(title)
-        }
     }
 }
