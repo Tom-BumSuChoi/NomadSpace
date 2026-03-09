@@ -1,57 +1,47 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let project = Project(
-    name: "NomadSpace",
-    targets: appTargets
-        + designSystemTargets
-        + coreTargets
-        + domainTargets
-        + featureTargets
-)
+func makeAppTargets() -> [Target] {
+    [
+        .target(
+            name: "NomadSpace",
+            destinations: .iOS,
+            product: .app,
+            bundleId: "io.nomadspace.app",
+            infoPlist: .extendingDefault(with: [
+                "UILaunchScreen": ["UIColorName": "", "UIImageName": ""]
+            ]),
+            sources: ["App/Sources/**"],
+            resources: ["App/Resources/**"],
+            dependencies: [
+                .external(name: "ComposableArchitecture"),
+                .target(name: "FlightFeature"),
+                .target(name: "StayFeature"),
+                .target(name: "WalletFeature"),
+                .target(name: "CommunityFeature"),
+                .target(name: "WorkspaceFeature"),
+                .target(name: "DesignSystem"),
+                .target(name: "TravelDomainInterface"),
+                .target(name: "PaymentDomainInterface"),
+                .target(name: "NetworkCoreInterface"),
+            ]
+        ),
+    ]
+}
 
-// MARK: - App Layer
+func makeDesignSystemTargets() -> [Target] {
+    [
+        .target(
+            name: "DesignSystem",
+            destinations: .iOS,
+            product: .framework,
+            bundleId: "io.nomadspace.DesignSystem",
+            sources: ["SharedUI/DesignSystem/Sources/**"]
+        ),
+    ]
+}
 
-let appTargets: [Target] = [
-    .target(
-        name: "NomadSpace",
-        destinations: .iOS,
-        product: .app,
-        bundleId: "io.nomadspace.app",
-        infoPlist: .extendingDefault(with: [
-            "UILaunchScreen": ["UIColorName": "", "UIImageName": ""],
-        ]),
-        sources: ["App/Sources/**"],
-        resources: ["App/Resources/**"],
-        dependencies: [
-            .target(name: "FlightFeature"),
-            .target(name: "StayFeature"),
-            .target(name: "WalletFeature"),
-            .target(name: "CommunityFeature"),
-            .target(name: "WorkspaceFeature"),
-            .target(name: "DesignSystem"),
-            .target(name: "TravelDomainInterface"),
-            .target(name: "PaymentDomainInterface"),
-            .target(name: "NetworkCoreInterface"),
-        ]
-    ),
-]
-
-// MARK: - Shared UI Layer
-
-let designSystemTargets: [Target] = [
-    .target(
-        name: "DesignSystem",
-        destinations: .iOS,
-        product: .framework,
-        bundleId: "io.nomadspace.DesignSystem",
-        sources: ["SharedUI/DesignSystem/Sources/**"]
-    ),
-]
-
-// MARK: - Core Layer
-
-let coreTargets: [Target] =
+func makeCoreTargets() -> [Target] {
     Module.makeTargets(
         name: "NetworkCore",
         layer: "Core",
@@ -68,10 +58,9 @@ let coreTargets: [Target] =
         layer: "Core",
         hasExample: false
     )
+}
 
-// MARK: - Domain Layer
-
-let domainTargets: [Target] =
+func makeDomainTargets() -> [Target] {
     Module.makeTargets(
         name: "TravelDomain",
         layer: "Domains",
@@ -98,14 +87,14 @@ let domainTargets: [Target] =
         ],
         hasExample: false
     )
+}
 
-// MARK: - Feature Layer
-
-let featureTargets: [Target] =
+func makeFeatureTargets() -> [Target] {
     Module.makeTargets(
         name: "FlightFeature",
         layer: "Features",
         dependencies: [
+            .external(name: "ComposableArchitecture"),
             .target(name: "TravelDomainInterface"),
             .target(name: "NetworkCoreInterface"),
             .target(name: "DesignSystem"),
@@ -145,3 +134,15 @@ let featureTargets: [Target] =
             .target(name: "DesignSystem"),
         ]
     )
+}
+
+let project = Project(
+    name: "NomadSpace",
+    targets: [
+        makeAppTargets(),
+        makeDesignSystemTargets(),
+        makeCoreTargets(),
+        makeDomainTargets(),
+        makeFeatureTargets(),
+    ].flatMap { $0 }
+)

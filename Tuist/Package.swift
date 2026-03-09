@@ -5,7 +5,10 @@ import PackageDescription
     import struct ProjectDescription.PackageSettings
 
     let packageSettings = PackageSettings(
-        productTypes: ["Alamofire": .framework]
+        productTypes: [
+            "Alamofire": .framework,
+            "ComposableArchitecture": .framework,
+        ]
     )
 #endif
 
@@ -13,5 +16,6 @@ let package = Package(
     name: "NomadSpace",
     dependencies: [
         .package(url: "https://github.com/Alamofire/Alamofire", from: "5.10.2"),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.24.0"),
     ]
 )
