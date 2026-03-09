@@ -9,9 +9,14 @@ public struct NomadCard<Content: View>: View {
 
     public var body: some View {
         content
-            .padding(16)
+            .padding(NomadSpacing.md)
             .background(NomadColors.cardBackground)
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
+            .cornerRadius(NomadRadius.xl)
+            .shadow(
+                color: NomadShadow.card.color.opacity(NomadShadow.card.opacity),
+                radius: NomadShadow.card.radius,
+                x: NomadShadow.card.x,
+                y: NomadShadow.card.y
+            )
     }
 }

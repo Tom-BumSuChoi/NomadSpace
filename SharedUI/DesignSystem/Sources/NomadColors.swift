@@ -9,4 +9,6 @@ public enum NomadColors {
     public static let success = Color(red: 0.20, green: 0.78, blue: 0.35)
     public static let error = Color(red: 0.94, green: 0.27, blue: 0.27)
     public static let cardBackground = Color.white
+    /// #1976d2 - 지갑 카드 그라데이션 끝색 (figma-prototype/index.html 기준)
+    public static let accentDark = Color(red: 0.098, green: 0.463, blue: 0.824)
 }
