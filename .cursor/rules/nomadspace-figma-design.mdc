@@ -1,0 +1,45 @@
+---
+description: NomadSpace Figma 디자인 시 Figma-to-SwiftUI 변환 가이드
+globs: 
+alwaysApply: false
+---
+
+# NomadSpace Design System (Figma → SwiftUI)
+
+## Design Tokens
+
+### Colors
+| Token | HEX | RGB | SwiftUI |
+|-------|-----|-----|---------|
+| accent | #2196F3 | 33, 150, 243 | NomadColors.accent |
+| highlight | #FF9500 | 255, 149, 0 | NomadColors.highlight |
+| surface | #F2F3F5 | 242, 243, 245 | NomadColors.surface |
+| onSurface | #212121 | 33, 33, 33 | NomadColors.onSurface |
+| onSurfaceSecondary | #878787 | 135, 135, 135 | NomadColors.onSurfaceSecondary |
+| success | #34C759 | 52, 199, 89 | NomadColors.success |
+| error | #F04438 | 240, 68, 56 | NomadColors.error |
+| cardBackground | #FFFFFF | 255, 255, 255 | NomadColors.cardBackground |
+
+### Typography
+| Style | Size | Weight | SwiftUI |
+|-------|------|--------|---------|
+| largeTitle | 28pt | Bold, Rounded | NomadFonts.largeTitle |
+| title | 22pt | Semibold, Rounded | NomadFonts.title |
+| headline | 17pt | Semibold | NomadFonts.headline |
+| body | 15pt | Regular | NomadFonts.body |
+| caption | 13pt | Regular | NomadFonts.caption |
+| small | 11pt | Regular | NomadFonts.small |
+
+### Spacing
+- Card padding: 16pt
+- Section spacing: 20pt
+- Corner radius: 12pt (buttons), 16pt (cards)
+- Shadow: 0 2 8, opacity 0.06
+
+## Components
+- **NomadCard**: 16pt padding, 16pt radius, white bg, subtle shadow
+- **NomadButton**: primary (accent fill), secondary (accent 10% fill), outline (border only)
+- **NomadTextField**: icon + text field with caption
+
+## Tab Structure (5 tabs)
+항공 | 숙소 | 커뮤니티 | 코워킹 | 지갑

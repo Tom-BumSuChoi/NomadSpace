@@ -1,0 +1,14 @@
+---
+description: Figma MCP 서버 에셋 처리 규칙. Figma 디자인 구현 시 에셋(이미지, SVG) 사용 방법을 정의합니다.
+globs: ["**/*.swift", "**/*.tsx", "**/*.jsx"]
+alwaysApply: true
+---
+
+## Figma MCP 에셋 처리 규칙
+
+Figma MCP 서버를 사용하여 디자인을 구현할 때 다음 규칙을 따르세요.
+
+- Figma MCP 서버는 이미지 및 SVG 에셋을 제공하는 에셋 엔드포인트를 제공합니다.
+- **IMPORTANT:** Figma MCP 서버가 이미지 또는 SVG에 대해 localhost 소스를 반환하면, 해당 소스를 **그대로 사용**하세요.
+- **IMPORTANT:** 새로운 아이콘 패키지를 import하거나 추가하지 마세요. 모든 에셋은 Figma 페이로드에 포함되어야 합니다.
+- **IMPORTANT:** localhost 소스가 제공된 경우 placeholder를 사용하거나 생성하지 마세요.
