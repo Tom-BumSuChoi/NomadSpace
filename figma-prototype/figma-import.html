@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Figma로 NomadSpace 디자인 가져오기</title>
+  <style>
+    body { font-family: system-ui; padding: 24px; max-width: 500px; margin: 0 auto; }
+    h1 { font-size: 18px; }
+    .steps { background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0; font-size: 14px; line-height: 1.6; }
+    .preview { border: 2px dashed #2196F3; border-radius: 12px; padding: 16px; margin: 16px 0; text-align: center; cursor: grab; }
+    .preview img { max-width: 100%; border-radius: 8px; display: block; margin: 0 auto; }
+    .preview:active { cursor: grabbing; }
+    a { color: #2196F3; }
+  </style>
+</head>
+<body>
+  <h1>NomadSpace → Figma</h1>
+  <div class="steps">
+    <strong>방법 1 (드래그):</strong><br>
+    1. <a href="https://www.figma.com/new" target="_blank">Figma 새 파일 열기</a><br>
+    2. 아래 이미지를 Figma 캔버스로 드래그
+  </div>
+  <div class="steps">
+    <strong>방법 2 (파일):</strong><br>
+    Figma에서 Ctrl/Cmd+Shift+K → Place image → <code>nomadspace-prototype.png</code> 선택
+  </div>
+  <div class="preview" draggable="true" id="dragSource">
+    <img src="nomadspace-prototype.png" alt="NomadSpace 프로토타입" width="390" draggable="true" id="img">
+  </div>
+  <script>
+    document.getElementById('img').addEventListener('dragstart', e => {
+      e.dataTransfer.setData('DownloadURL', 'nomadspace-prototype.png:image/png');
+    });
+  </script>
+</body>
+</html>
