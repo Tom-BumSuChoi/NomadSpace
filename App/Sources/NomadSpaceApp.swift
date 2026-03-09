@@ -1,4 +1,5 @@
 import SwiftUI
+import ComposableArchitecture
 import FlightFeature
 import StayFeature
 import WalletFeature
@@ -10,11 +11,19 @@ import NetworkCoreInterface
 
 @main
 struct NomadSpaceApp: App {
-    private let dependencies = AppDependencies()
+    private let dependencies: AppDependencies
+    private let store: StoreOf<MainTabReducer>
+
+    init() {
+        self.dependencies = AppDependencies()
+        self.store = Store(initialState: MainTabReducer.State()) {
+            MainTabReducer()
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
-            MainTabView(dependencies: dependencies)
+            MainTabView(store: store, dependencies: dependencies)
         }
     }
 }
@@ -65,7 +74,7 @@ private struct StubExchangeRateUseCase: ExchangeRateUseCaseType {
 }
 
 private struct StubSplitBillUseCase: SplitBillUseCaseType {
-    func createTransaction(_ transaction: Transaction) async throws -> Transaction { transaction }
-    func getTransactions(tripId: String) async throws -> [Transaction] { [] }
-    func calculateBalances(for transactions: [Transaction]) -> [String: Decimal] { [:] }
+    func createTransaction(_ transaction: PaymentDomainInterface.Transaction) async throws -> PaymentDomainInterface.Transaction { transaction }
+    func getTransactions(tripId: String) async throws -> [PaymentDomainInterface.Transaction] { [] }
+    func calculateBalances(for transactions: [PaymentDomainInterface.Transaction]) -> [String: Decimal] { [:] }
 }
